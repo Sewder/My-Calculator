@@ -2,8 +2,20 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <numeric>
+#include <algorithm>
 std::unordered_map<std::string, double> hashmap;
 std::unordered_map<std::string, int> elements_numbers;
+
+int gcd(int a, int b) {
+    if (b == 0) {
+        return a;
+    }
+    else {
+        return gcd(b, a % b);
+    }
+}
 
 void create_hashmap() {
     std::ifstream file("elements.csv");
@@ -42,7 +54,12 @@ double return_mass() {
     for (const auto& pair : elements_numbers) {
         const std::string& key = pair.first;
         int value = pair.second;
-        mass += hashmap[key] * value;
+        if (hashmap[key] != 0) {
+            mass += hashmap[key] * value;
+        }
+        else {
+            return 0;
+        }
 
 
     }
@@ -126,4 +143,24 @@ void create_elements_hashmap(const std::string& equation) {
             i++;
         }
     }
+};
+std::string reduceProportions() {
+    std::vector<int> proportions;
+    for (const auto& pair : elements_numbers) {
+        int value = pair.second;
+        proportions.push_back(value);
+
+    }
+
+    int gcd1 = std::accumulate(proportions.begin(), proportions.end(), proportions[0], gcd);
+    std::vector<int> reduced_proportions(proportions.size());
+    std::transform(proportions.begin(), proportions.end(), reduced_proportions.begin(), [gcd1](int n) {return n / gcd1;});
+    std::string result = "";
+    int i = 0;
+    for (const auto& pair : elements_numbers) {
+        const std::string& key = pair.first;
+        result += key + ":" + std::to_string(reduced_proportions[i]) + " ";
+        i++;
+    }
+    return result;
 };
