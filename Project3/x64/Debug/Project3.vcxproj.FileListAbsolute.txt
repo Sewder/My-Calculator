@@ -1,0 +1,4 @@
+C:\Users\omer_\OneDrive\Masaüstü\Project3\Project3\x64\Debug\Project3.vcxproj.AssemblyReference.cache
+C:\Users\omer_\OneDrive\Masaüstü\Project3\Project3\x64\Debug\Project3.vcxproj.SuggestedBindingRedirects.cache
+C:\Users\omer_\OneDrive\Masaüstü\Project3\Project3\x64\Debug\Project3.MyForm.resources
+C:\Users\omer_\OneDrive\Masaüstü\Project3\Project3\x64\Debug\Project3.vcxproj.GenerateResource.cache
