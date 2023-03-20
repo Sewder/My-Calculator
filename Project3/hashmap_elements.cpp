@@ -164,3 +164,11 @@ std::string reduceProportions() {
     }
     return result;
 };
+bool containsOnlyDigits(System::String^ string) {
+    for (int i = 0;i < string->Length;i++) {
+        if (!System::Char::IsDigit(string[i])) {
+            return false;
+        }
+        return true;
+    }
+};

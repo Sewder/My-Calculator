@@ -49,6 +49,8 @@ namespace Project3 {
 	private: System::Windows::Forms::Label^ label4;
 	private: System::Windows::Forms::Label^ Proportions;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^ chart1;
+	private: System::Windows::Forms::ToolTip^ tooltip;
+
 
 
 
@@ -79,6 +81,7 @@ namespace Project3 {
 				10));
 			System::Windows::Forms::DataVisualization::Charting::DataPoint^ dataPoint3 = (gcnew System::Windows::Forms::DataVisualization::Charting::DataPoint(0,
 				15));
+			ToolTip^ tooltip = gcnew ToolTip();
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->click = (gcnew System::Windows::Forms::Button());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
@@ -173,6 +176,7 @@ namespace Project3 {
 			this->chart1->TabIndex = 0;
 			this->chart1->Text = L"chart1";
 			this->chart1->Visible = false;
+			this->chart1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::chart1_MouseMove);
 			// 
 			// MyForm
 			// 
@@ -200,37 +204,43 @@ namespace Project3 {
 	private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		std::string equation = msclr::interop::marshal_as<std::string>(textBox1->Text);
-		create_elements_hashmap(equation);
-		double mass = return_mass();
-		String^ proportions= msclr::interop::marshal_as<String^>(reduceProportions());
-		chart1->Series->Clear();
-		if (mass == 0) {
-			String^ message = "please write a valid compound or element";
+		if (containsOnlyDigits(textBox1->Text)) {
+			String^ message = " please write a valid compound or element";
 			MessageBox::Show(message);
 		}
 		else {
-			label4->Text = "mass of compound is " + gcnew String(std::to_string(mass).c_str());
-			label4->Visible = true;
-			Proportions->Text = "proportions for elements is " + proportions;
-			Proportions->Visible = true;
-			chart1->Series->Add("ElementProportions");
-			for (const auto& pair : elements_numbers) {
-				String^ key = msclr::interop::marshal_as<String^>(pair.first);
-				int value = pair.second;
-				System::Windows::Forms::DataVisualization::Charting::DataPoint^ dataPoint = (gcnew System::Windows::Forms::DataVisualization::Charting::DataPoint(0, (hashmap[pair.first]/mass)*100));
-				dataPoint->AxisLabel = key;
-				chart1->Series["ElementProportions"]->Points->Add(dataPoint);
-				chart1->Series["ElementProportions"]->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Pie;
-				chart1->Titles->Clear();
-				chart1->Titles->Add("Element Proportions in " + textBox1->Text);
-				chart1->Legends->Clear();
-				chart1->Legends->Add(gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			std::string equation = msclr::interop::marshal_as<std::string>(textBox1->Text);
+			create_elements_hashmap(equation);
+			double mass = return_mass();
+			String^ proportions = msclr::interop::marshal_as<String^>(reduceProportions());
+			chart1->Series->Clear();
+			if (mass == 0) {
+				String^ message = "please write a valid compound or element";
+				MessageBox::Show(message);
+			}
+			else {
+				label4->Text = "mass of compound is " + gcnew String(std::to_string(mass).c_str());
+				label4->Visible = true;
+				Proportions->Text = "proportions for elements is " + proportions;
+				Proportions->Visible = true;
+				chart1->Series->Add("ElementProportions");
+				for (const auto& pair : elements_numbers) {
+					String^ key = msclr::interop::marshal_as<String^>(pair.first);
+					int value = pair.second;
+					System::Windows::Forms::DataVisualization::Charting::DataPoint^ dataPoint = (gcnew System::Windows::Forms::DataVisualization::Charting::DataPoint(0, (hashmap[pair.first] / mass) * 100));
+					dataPoint->AxisLabel = key;
+					chart1->Series["ElementProportions"]->Points->Add(dataPoint);
+					chart1->Series["ElementProportions"]->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Pie;
+					chart1->Titles->Clear();
+					chart1->Titles->Add("Element Proportion mass in " + textBox1->Text);
+					chart1->Legends->Clear();
+					chart1->Legends->Add(gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+
+				}
+				chart1->Visible = true;
+
 
 			}
-			chart1->Visible = true;
-
-
 		}
 	}
 private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
@@ -238,6 +248,21 @@ private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) 
 private: System::Void chart1_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 private: System::Void chart1_Click_1(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void chart1_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+	HitTestResult^ result = chart1->HitTest(e->X, e->Y);
+	if (result->ChartElementType == ChartElementType::DataPoint) {
+		DataPoint^ point = chart1->Series["ElementProportions"]->Points[result->PointIndex];
+		double massPercantage = point->YValues[0];
+		chart1->Series["ElementProportions"]->ToolTip = String::Format("{0:0}  {1}", point->AxisLabel, point->YValues[0]);
+		if (tooltip == nullptr) {
+			tooltip = gcnew ToolTip();
+		}
+		
+	}
+	
+}
+private: System::Void chart1_GetToolTipText(System::Object^ sender, System::Windows::Forms::DataVisualization::Charting::ToolTipEventArgs^ e) {
 }
 };
 }
